@@ -1,0 +1,9 @@
+# Build
+build/
+
+# Modules
+node_modules
+
+# Rest
+events.json
+__events.json

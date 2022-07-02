@@ -1,0 +1,43 @@
+{
+  "name": "analyze-events",
+  "version": "1.0.0",
+  "description": "Tool for analyzing events",
+  "main": "./build/index.js",
+  "scripts": {
+    "start": "./node_modules/ts-node/dist/bin.js ./src/index.ts",
+    "build": "./node_modules/rimraf/bin.js build && ./node_modules/typescript/bin/tsc"
+  },
+  "bin": {
+    "analyze-events": "./build/index.js"
+  },
+  "keywords": [],
+  "author": "Oleksandr Vanilchuk <htn.developer@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@types/chance": "^1.1.3",
+    "bfj": "^7.0.2",
+    "chalk": "^4.1.2",
+    "chance": "^1.1.8",
+    "cli-progress": "^3.11.1",
+    "commander": "^9.3.0",
+    "conf": "^10.1.2",
+    "date-fns": "^2.28.0",
+    "exceljs": "^4.3.0",
+    "fs-extra": "^10.1.0",
+    "inquirer": "^8.2.4",
+    "shelljs": "^0.8.5",
+    "stream-json": "^1.7.4"
+  },
+  "devDependencies": {
+    "@types/cli-progress": "^3.11.0",
+    "@types/fs-extra": "^9.0.13",
+    "@types/inquirer": "^8.2.1",
+    "@types/node": "^18.0.0",
+    "@types/shelljs": "^0.8.11",
+    "@types/stream-json": "^1.7.2",
+    "objects-to-csv": "^1.3.6",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.8.1",
+    "typescript": "^4.7.3"
+  }
+}
