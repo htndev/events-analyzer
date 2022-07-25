@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bar Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
+  </head>
+  <body>
+    <canvas id="chart"></canvas>
+    <script>
+      function randomNum() {
+        return Math.floor(Math.random() * (235 - 52 + 1) + 52);
+      }
+
+      function randomRGB() {
+        return `rgb(${randomNum()}, ${randomNum()}, ${randomNum()})`;
+      }
+
+      var data = {0};
+
+      function getherEventIterations(events, key) {
+        return events.map((e) => e[key]);
+      }
+
+      Chart.register(ChartZoom);
+
+      var chart = new Chart(document.getElementById('chart'), {
+        type: 'bar',
+        data: {
+          labels: Object.keys(data).map((d) => new Date(d).toLocaleDateString()),
+          datasets: (() => {
+            var values = Object.values(data);
+            var labels = Object.keys(values[0]);
+            return labels.map((label) => ({
+              label,
+              data: getherEventIterations(values, label),
+              backgroundColor: randomRGB()
+              // barThickness: 20
+            }));
+          })()
+        },
+        options: {
+          plugins: {
+            zoom: {
+              zoom: {
+                wheel: {
+                  enabled: true
+                },
+                pinch: {
+                  enabled: true
+                },
+                mode: 'x'
+              }
+            }
+          },
+          responsive: true,
+          scales: {
+            x: {
+              stacked: true
+            },
+            y: {
+              beginAtZero: true,
+              stacked: true
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -10,3 +10,8 @@ __events.json
 
 # System
 .DS_Store
+
+# Archive & output
+*.html
+!src/template/*.html
+*.zip

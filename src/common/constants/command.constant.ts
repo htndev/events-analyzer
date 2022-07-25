@@ -2,5 +2,6 @@ export enum Command {
   List = 'ls',
   Init = 'init',
   Retrieve = 'retrieve',
-  Config = 'config'
+  Config = 'config',
+  Get = 'get'
 }

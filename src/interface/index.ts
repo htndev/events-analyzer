@@ -1,3 +1,4 @@
+import { GetCommand } from './commands/get.command';
 import { program } from 'commander';
 import { ClassType } from '../common/types';
 import { bold, cyan, green } from '../common/utils/console.util';
@@ -12,7 +13,8 @@ const COMMANDS: ClassType<BaseCommand>[] = [
   ListCommand,
   InitCommand,
   RetrieveCommand,
-  ConfigCommand
+  ConfigCommand,
+  GetCommand
 ].sort(
   // @ts-ignore
   (a, b) => a.name < b.name

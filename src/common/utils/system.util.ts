@@ -1,9 +1,12 @@
-import { createReadStream, pathExists, readJson, readJsonSync, statSync, lstat } from 'fs-extra';
+import { createReadStream, lstat, pathExists, readJson, readJsonSync, statSync } from 'fs-extra';
 import fs from 'fs/promises';
-import { join, resolve as resolePath } from 'path';
+import { resolve as resolePath } from 'path';
 import StreamArray from 'stream-json/streamers/StreamArray';
 import { ConfigType } from '../types';
 import { Logger } from './logger.util';
+import AdmZip from 'adm-zip';
+
+export const currentFolder = process.cwd();
 
 export const readFile = async (path: string): Promise<string | never> => {
   const file = await fs.readFile(path, 'utf-8');
@@ -62,3 +65,12 @@ export const handleJsonStream = (
 };
 
 export const resolve = resolePath;
+
+export const writeFileIntoZip = (filename: string, content: string) => {
+  const zip = new AdmZip();
+
+  zip.addFile(filename, Buffer.from(content, 'utf-8'));
+  const zipPath = resolve(currentFolder, `${filename}.zip`);
+
+  zip.writeZip(zipPath);
+};

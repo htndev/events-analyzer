@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pie Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  </head>
+  <body>
+    <canvas id="chart"></canvas>
+    <script defer>
+      function randomNum() {
+        return Math.floor(Math.random() * (235 - 52 + 1) + 52);
+      }
+
+      function randomRGB() {
+        return `rgb(${randomNum()}, ${randomNum()}, ${randomNum()})`;
+      };
+
+      var data = [
+        {0}
+      ];
+
+      var backgroundColor = (function () {
+        const colors = [];
+
+        while (colors.length !== data.length) {
+          const color = randomRGB();
+
+          if (colors.includes(color)) {
+            continue;
+          }
+
+          colors.push(color);
+        }
+
+        return colors;
+      })();
+
+      Chart.register(ChartDataLabels);
+
+      var chart = new Chart(document.getElementById('chart'), {
+        type: 'pie',
+        data: {
+          labels: data.map(([key]) => key),
+          datasets: [
+            {
+              label: 'Chart',
+              data: data.map(([key, value]) => value),
+              backgroundColor,
+              normalized: true
+            }
+          ]
+        },
+        options: {
+          plugins: {
+            datalabels: {
+              formatter: (value, ctx) => {
+                const datasets = ctx.chart.data.datasets;
+                const sum = datasets[0].data.reduce((a, b) => a + b, 0);
+
+                return `${((value / sum) * 100).toFixed(2)}%`;
+              },
+              borderColor: '#fff',
+              color: '#fff',
+            }
+          }
+        },
+      });
+    </script>
+  </body>
+</html>

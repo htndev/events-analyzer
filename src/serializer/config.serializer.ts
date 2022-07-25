@@ -30,7 +30,7 @@ class ConfigSerializer extends BaseSerializer {
     return row.startsWith(this.ignoreSign);
   }
 
-  stringify(data: Record<string, string | string[]>): string {
+  stringify(data: ConfigType): string {
     return Object.entries(data).reduce(
       (total, [key, value]) =>
         `${total}${

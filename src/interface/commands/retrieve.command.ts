@@ -1,3 +1,4 @@
+import { DateRangeOption } from './../options/date-range.option';
 import { Command } from '../../common/constants/command.constant';
 import { EventField } from '../../common/constants/event-field.constant';
 import { FILTER_MAP } from '../../common/constants/filter.constant';
@@ -10,10 +11,6 @@ import { DisplayViewOption } from '../options/display-view.option';
 import { LimitOption } from '../options/limit.option';
 import { OffsetOption } from '../options/offset.option';
 import { ExportFormat } from './../../common/constants/export.constant';
-import {
-  DISPLAY_FIELDS,
-  DISPLAY_FIELDS_SEPARATOR
-} from './../../common/constants/options.constant';
 import { prepareForPrint } from './../../common/utils/object.util';
 import { generateCsvFilename } from './../../common/utils/string.util';
 import { resolve, writeFile } from './../../common/utils/system.util';
@@ -30,12 +27,13 @@ const filterForbiddenFields = <T>(
 
 export class RetrieveCommand extends BaseCommand {
   constructor() {
-    super(`${Command.Retrieve} [filters...]`, 'Retrieve events based on your criteria', [
+    super(`${Command.Retrieve}`, 'Retrieve events based on your criteria', [
       LimitOption,
       OffsetOption,
       DisplayFieldsOption,
       DisplayViewOption,
-      ExportOption
+      ExportOption,
+      DateRangeOption
     ]);
   }
 
@@ -45,23 +43,28 @@ export class RetrieveCommand extends BaseCommand {
       offset,
       displayFields,
       displayView,
-      exportTo
+      exportTo,
+      dateRange
     }: {
       limit: LimitOption;
       offset: OffsetOption;
       displayView: DisplayViewOption;
       displayFields: DisplayFieldsOption;
       exportTo: ExportOption;
+      dateRange: DateRangeOption;
     },
     args: string[]
   ): Promise<void> {
-    const events = await this.readEvents();
+    let events = await this.readEvents();
     if (!events) {
       return;
     }
+
+    events = dateRange.perform(events);
     const parsedFilters = args.map(filterSerializer.parse);
     const allowedFields = Object.values(EventField);
     const notExistingFields = filterForbiddenFields(parsedFilters, allowedFields, 'field');
+
     if (notExistingFields.length) {
       if (notExistingFields.length) {
         this.logger.error(
@@ -77,8 +80,10 @@ export class RetrieveCommand extends BaseCommand {
         return;
       }
     }
+
     const systemFilters = Object.keys(FILTER_MAP);
     const notExistingActions = filterForbiddenFields(parsedFilters, systemFilters, 'action');
+
     if (notExistingActions.length) {
       this.logger.error(
         'Filters',
@@ -87,16 +92,17 @@ export class RetrieveCommand extends BaseCommand {
       );
       return;
     }
+
     const filters: BaseFilter[] = parsedFilters.map(
       (pf) => new (FILTER_MAP as any)[pf.action](pf.field, pf.value)
     );
     const rawFilteredEvents = filters.reduce((result, filter) => filter.filter(result), events);
     const filteredEvents = this.filterEvents(rawFilteredEvents, [offset, limit]);
-    const fields = displayFields.value
-      ? (displayFields.value.split(DISPLAY_FIELDS_SEPARATOR) as EventField[])
-      : DISPLAY_FIELDS[displayView.value];
 
-    const printEvents = prepareForPrint(filteredEvents, fields);
+    const printEvents = prepareForPrint(
+      filteredEvents,
+      this.getDisplayFields(displayFields, displayView)
+    );
 
     if (exportTo.value) {
       switch (exportTo.value) {

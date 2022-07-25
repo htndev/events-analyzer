@@ -1,16 +1,20 @@
-import { DisplayView } from './../../common/constants/options.constant';
-import { EventField } from './../../common/constants/event-field.constant';
-import { DisplayFieldsOption } from './../options/display-fields.option';
 import { bold, italic } from 'chalk';
-import { PossiblePromise } from '../../common/types';
-import { isBoolean, isNumber } from '../../common/validators/type.validator';
-import { config } from '../../config/config';
-import { BaseOption } from '../options/base.option';
 import { Command } from '../../common/constants/command.constant';
-import { ClassType, IEvent, ValueType } from '../../common/types';
+import { ClassType, IEvent, PossiblePromise, ValueType } from '../../common/types';
 import { Logger } from '../../common/utils/logger.util';
 import { Printer } from '../../common/utils/printer.util';
 import { doesFileExist, readJSON } from '../../common/utils/system.util';
+import { isBoolean, isNumber } from '../../common/validators/type.validator';
+import { config } from '../../config/config';
+import { BaseOption } from '../options/base.option';
+import { EventField } from './../../common/constants/event-field.constant';
+import {
+  DEFAULT_DISPLAY_VIEW,
+  DISPLAY_FIELDS,
+  DISPLAY_FIELDS_SEPARATOR
+} from './../../common/constants/options.constant';
+import { DisplayFieldsOption } from './../options/display-fields.option';
+import { DisplayViewOption } from './../options/display-view.option';
 
 export abstract class BaseCommand {
   protected logger: Logger;
@@ -30,7 +34,9 @@ export abstract class BaseCommand {
 
   abstract action(options: Record<string, BaseOption>, args: string[]): PossiblePromise<void>;
 
-  callAction(args: string[], options: Record<string, string>) {
+  callAction(options: Record<string, any>, environment: Record<string, any>) {
+    const args = environment.args;
+
     try {
       const opts = this.options.reduce((total: any, option: ClassType<BaseOption>) => {
         const opt = new option();
@@ -47,9 +53,9 @@ export abstract class BaseCommand {
     } catch (e) {}
   }
 
-  private getSafeArgumentValue(value: string | string): ValueType {
+  private getSafeArgumentValue(value: ValueType): ValueType {
     if (isBoolean(value)) {
-      return value === 'true';
+      return value;
     }
 
     if (isNumber(value)) {
@@ -85,7 +91,19 @@ export abstract class BaseCommand {
     return readJSON(eventsPath);
   }
 
-  protected getDisplayFields(displayFields: EventField, displayView: DisplayView): EventField[] {
-    return [];
+  protected getDisplayFields(
+    displayFields: DisplayFieldsOption,
+    displayView: DisplayViewOption
+  ): EventField[] {
+    switch (true) {
+      case !!displayFields.value:
+        return displayFields.value.split(DISPLAY_FIELDS_SEPARATOR) as EventField[];
+      case !!displayView.value:
+        return (DISPLAY_FIELDS as any)[displayView.value];
+      case !!config.defaultDisplayFields?.length:
+        return config.defaultDisplayFields as EventField[];
+      default:
+        return DISPLAY_FIELDS[DEFAULT_DISPLAY_VIEW];
+    }
   }
 }

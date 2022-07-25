@@ -1,3 +1,5 @@
+import { DefaultDisplayFieldsQuestion } from './../wizards/questions/default-display-fields.question';
+import { EventsPathQuestion } from './../wizards/questions/events-path.question';
 import { eventsPathValidator } from './../../common/validators/events-path.validator';
 import { Choice } from '../wizards/choices/choice';
 import { Question } from '../wizards/questions/base.question';
@@ -5,6 +7,7 @@ import { Command } from './../../common/constants/command.constant';
 import { WizardQuestionType } from './../../common/types';
 import { wizard } from './../wizards/base.wizard';
 import { BaseCommand } from './base.command';
+import { config } from '../../config/config';
 
 export class ConfigCommand extends BaseCommand {
   constructor() {
@@ -38,17 +41,21 @@ export class ConfigCommand extends BaseCommand {
     nextStep[configItem]?.();
   }
 
-  async changeEventsPath() {
-    const { eventsPath } = await wizard.ask([
-      new Question('eventsPath', 'Please, specify path to he event:', WizardQuestionType.Input, {
-        validate: eventsPathValidator
-      })
-    ]);
+  async changeEventsPath(): Promise<void> {
+    const { [config.eventsField]: eventsPath } = await wizard.ask([new EventsPathQuestion()]);
 
-    console.log(eventsPath);
+    await config.updateConfigProperty(config.eventsField, eventsPath);
+
+    this.logger.info('Your events path successfully updated.');
   }
 
-  changeDisplayFields() {
-    console.log('Display fields');
+  async changeDisplayFields() {
+    const { [config.defaultDisplayFieldsField]: defaultDisplayFields } = await wizard.ask([
+      new DefaultDisplayFieldsQuestion()
+    ]);
+
+    await config.updateConfigProperty(config.defaultDisplayFieldsField, defaultDisplayFields);
+
+    this.logger.info('Your default display fields successfully updated.');
   }
 }

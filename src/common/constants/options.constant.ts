@@ -7,7 +7,9 @@ export enum DisplayView {
   Custom = 'custom'
 }
 
-export const DISPLAY_FIELDS: { [k in Exclude<DisplayView, DisplayView.Custom>]: EventField[] } = {
+export type PredefinedDisplayFields = Exclude<DisplayView, DisplayView.Custom>;
+
+export const DISPLAY_FIELDS: { [k in PredefinedDisplayFields]: EventField[] } = {
   [DisplayView.Basic]: [EventField.Id, EventField.Action, EventField.Timestamp],
   [DisplayView.Main]: [
     EventField.Id,
@@ -31,3 +33,19 @@ export const DISPLAY_FIELDS: { [k in Exclude<DisplayView, DisplayView.Custom>]: 
 };
 
 export const DISPLAY_FIELDS_SEPARATOR = ',';
+
+export const DEFAULT_DISPLAY_VIEW = DisplayView.Basic;
+
+export enum AnalyzeCriteria {
+  Rare = 'rare',
+  Frequent = 'frequent',
+  All = 'all'
+}
+
+export const SYSTEM_ANALYZE_CRITERIA = Object.values(AnalyzeCriteria);
+
+export enum GraphType {
+  Pie = 'pie',
+  Bar = 'bar',
+  Line = 'line'
+}

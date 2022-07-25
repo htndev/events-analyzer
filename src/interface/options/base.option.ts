@@ -1,7 +1,7 @@
-import { IEvent, ValueType, PossiblePromise } from '../../common/types';
+import { IEvent, ValueType } from '../../common/types';
 
 export interface BaseOption {
-  perform?(events: IEvent[]): IEvent[];
+  perform?(events: IEvent[]): any;
 }
 
 export abstract class BaseOption<T = ValueType> {

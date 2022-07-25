@@ -1,5 +1,5 @@
 #! /usr/bin/env node
 
-import { app } from "./interface";
+import { app } from './interface';
 
 app.setup();

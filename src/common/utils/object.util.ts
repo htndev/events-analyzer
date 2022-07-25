@@ -1,6 +1,6 @@
 import { KEY_SEPARATOR } from '../constants/config.constant';
 import { ValueType } from '../types';
-import { EventField, EVENT_FIELDS } from './../constants/event-field.constant';
+import { EventField } from './../constants/event-field.constant';
 import { IEvent, PrintEventType } from './../types';
 
 export const getObjectValue = (object: Record<string, any>, key: string): ValueType | string[] => {
@@ -20,3 +20,22 @@ export const prepareForPrint = (events: IEvent[], fields: EventField[]): PrintEv
       {} as PrintEventType
     )
   );
+
+export const mapObject = <T = Record<string, any>>(obj: Record<string, any>): T => {
+  const flatObject: Record<string, any> = {};
+  const path: string[] = [];
+
+  const dig = (obj: Record<string, any>) => {
+    if (obj !== Object(obj)) return (flatObject[path.join('.')] = obj);
+
+    for (let key in obj) {
+      path.push(key);
+      dig(obj[key]);
+      path.pop();
+    }
+  };
+
+  dig(obj);
+
+  return flatObject as T;
+};

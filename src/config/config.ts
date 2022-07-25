@@ -1,3 +1,5 @@
+import { Logger } from './../common/utils/logger.util';
+import { doesFileExist, writeFile } from './../common/utils/system.util';
 import { DISPLAY_FIELDS_SEPARATOR } from './../common/constants/options.constant';
 import { EventField } from './../common/constants/event-field.constant';
 import os from 'os';
@@ -48,9 +50,40 @@ class ApplicationConfig {
   }
 
   async setup() {
-    const config = await readFile(this.configurationPath);
+    this.config = await this.readConfig();
+  }
 
-    this.config = configSerializer.parse(config);
+  async updateAllConfig(config: ConfigType): Promise<void> {
+    await this.writeConfig(config);
+  }
+
+  async updateConfigProperty(property: string, value: string | string[]): Promise<void> {
+    const config = (await this.readConfig()) as any;
+    config[property] = value;
+
+    await this.writeConfig(config);
+  }
+
+  async createConfig(config: ConfigType): Promise<void> {
+    const doesConfigExist = await doesFileExist(this.configurationPath);
+
+    if (doesConfigExist) {
+      Logger.error('Config already exists.');
+      return;
+    }
+
+    await this.writeConfig(config);
+  }
+
+  private async writeConfig(config: ConfigType): Promise<void> {
+    await writeFile(this.configurationPath, configSerializer.stringify(config));
+  }
+
+  private async readConfig(): Promise<ConfigType> {
+    const rawConfig = await readFile(this.configurationPath);
+    const config = configSerializer.parse(rawConfig);
+
+    return config;
   }
 }
 

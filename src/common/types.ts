@@ -1,3 +1,4 @@
+import { GraphType } from './constants/options.constant';
 import { EventField } from './constants/event-field.constant';
 import { Style } from './utils/console.util';
 
@@ -55,4 +56,9 @@ export interface IParsedFilter {
   action: string;
   value: string;
 }
+
 export type PrintEventType = Record<EventField, ValueType | string[]>;
+
+export type PieGraphEvent = { criteria: string; amount: number };
+
+export type GraphStructure = { type: GraphType; events: PieGraphEvent[] };
