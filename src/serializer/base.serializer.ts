@@ -1,4 +1,3 @@
-import { EventField } from '../common/constants/event-field.constant';
 import { PossiblePromise } from './../common/types';
 
 export abstract class BaseSerializer {

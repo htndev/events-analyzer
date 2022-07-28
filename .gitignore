@@ -15,3 +15,5 @@ __events.json
 *.html
 !src/template/*.html
 *.zip
+*.xlsx
+*.csv

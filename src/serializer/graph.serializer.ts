@@ -44,7 +44,6 @@ export class GraphSerializer extends BaseSerializer {
       ''
     );
     return template.replace('{0}', stringifiedEvents);
-    // console.log(stringifiedEvents);
   }
 
   private writeBar(
@@ -56,14 +55,11 @@ export class GraphSerializer extends BaseSerializer {
     return template.replace('{0}', JSON.stringify(events));
   }
 
-  private async writeLine(
+  private writeLine(
     template: string,
     events: { title: string; amount: number }[]
-  ): Promise<void> {
-    // let template = await readFile(this.getFilePath(GraphType.Pie));
-    // template = template.replace('{0}', events);
-    console.log(template);
-    console.log(events);
+  ): string {
+    return template.replace('{0}', JSON.stringify(events));
   }
 
   private get graphMethod(): { [k in GraphType]: Promise<Function> } {

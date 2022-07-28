@@ -1,3 +1,6 @@
+import { graphSerializer } from './../../serializer/graph.serializer';
+import { GraphCriteria } from './../options/graph-criteria.option';
+import { GraphOption } from './../options/graph.option';
 import { DateRangeOption } from './../options/date-range.option';
 import { Command } from '../../common/constants/command.constant';
 import { EventField } from '../../common/constants/event-field.constant';
@@ -11,13 +14,14 @@ import { DisplayViewOption } from '../options/display-view.option';
 import { LimitOption } from '../options/limit.option';
 import { OffsetOption } from '../options/offset.option';
 import { ExportFormat } from './../../common/constants/export.constant';
-import { prepareForPrint } from './../../common/utils/object.util';
+import { getObjectValue, prepareForPrint } from './../../common/utils/object.util';
 import { generateCsvFilename } from './../../common/utils/string.util';
 import { resolve, writeFile } from './../../common/utils/system.util';
 import { csvSerializer } from './../../serializer/csv.serializer';
 import { excelSerializer } from './../../serializer/excel.serializer';
 import { ExportOption } from './../options/export.option';
 import { BaseCommand } from './base.command';
+import { GraphType } from '../../common/constants/options.constant';
 
 const filterForbiddenFields = <T>(
   filters: T[],
@@ -33,7 +37,9 @@ export class RetrieveCommand extends BaseCommand {
       DisplayFieldsOption,
       DisplayViewOption,
       ExportOption,
-      DateRangeOption
+      DateRangeOption,
+      GraphOption,
+      GraphCriteria
     ]);
   }
 
@@ -44,7 +50,9 @@ export class RetrieveCommand extends BaseCommand {
       displayFields,
       displayView,
       exportTo,
-      dateRange
+      dateRange,
+      graph,
+      graphCriteria
     }: {
       limit: LimitOption;
       offset: OffsetOption;
@@ -52,6 +60,8 @@ export class RetrieveCommand extends BaseCommand {
       displayFields: DisplayFieldsOption;
       exportTo: ExportOption;
       dateRange: DateRangeOption;
+      graph: GraphOption;
+      graphCriteria: GraphCriteria;
     },
     args: string[]
   ): Promise<void> {
@@ -98,6 +108,26 @@ export class RetrieveCommand extends BaseCommand {
     );
     const rawFilteredEvents = filters.reduce((result, filter) => filter.filter(result), events);
     const filteredEvents = this.filterEvents(rawFilteredEvents, [offset, limit]);
+
+    if (graph.value) {
+      const GRAPH_BASE = [
+        ...new Set(
+          filteredEvents.map((e) => getObjectValue(e, graphCriteria.value as string) as string)
+        )
+      ].reduce((keys, key) => ({ ...keys, [key]: 0 }), {});
+      const graphData = filteredEvents.reduce((total: any, event) => {
+        const time = event.timestamp.slice(0, 10);
+        const value = total[time] || { ...GRAPH_BASE };
+        value[getObjectValue(event, graphCriteria.value as string) as string]++;
+
+        return {
+          ...total,
+          [time]: value
+        };
+      }, {});
+      await graphSerializer.stringify({ type: GraphType.Line, events: graphData });
+      return;
+    }
 
     const printEvents = prepareForPrint(
       filteredEvents,

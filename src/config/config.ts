@@ -65,13 +65,6 @@ class ApplicationConfig {
   }
 
   async createConfig(config: ConfigType): Promise<void> {
-    const doesConfigExist = await doesFileExist(this.configurationPath);
-
-    if (doesConfigExist) {
-      Logger.error('Config already exists.');
-      return;
-    }
-
     await this.writeConfig(config);
   }
 
